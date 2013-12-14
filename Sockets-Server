@@ -4,7 +4,7 @@
 #include <sys/socket.h> // Structures and functions used for socket API
 #include <netdb.h> // Used for domain/DNS hostname lookup
 #include <unistd.h>
-#i  nclude <errno.h>
+#include <errno.h>
 #include <cstdlib>
 #include <arpa/inet.h>
 
