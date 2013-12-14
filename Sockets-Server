@@ -1,0 +1,79 @@
+#include <iostream>
+#include <sys/types.h> // Types used in sys/socket.h and netinet/in.h
+#include <netinet/in.h> // Internet domain address structures and functions
+#include <sys/socket.h> // Structures and functions used for socket API
+#include <netdb.h> // Used for domain/DNS hostname lookup
+#include <unistd.h>
+#i  nclude <errno.h>
+#include <cstdlib>
+#include <arpa/inet.h>
+
+using namespace std;
+
+int main()
+{
+  int mSocket; /* socket descriptor */
+  // Create Socket
+  if((mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) < 0)
+  {
+    close(mSocket);
+    exit(EXIT_FAILURE);
+  }
+  
+/////////////////////////////////////////////////////////////////////////////////////////
+
+//Binding
+
+  struct sockaddr_in srv; /* used by bind() */
+  srv.sin_family = AF_INET; /* use the Internet addr family */
+  srv.sin_port = htons(8000); /* bind socket ‘fd’ to port 80*/
+
+  /* bind: a client may connect to any of my addresses */
+  srv.sin_addr.s_addr = htonl(INADDR_ANY);
+  if(bind(mSocket, (struct sockaddr*) &srv, sizeof(srv)) < 0)
+  {
+    perror("bind"); exit(1);
+  }
+  
+/////////////////////////////////////////////////////////////////////////////////////////
+
+//Listening
+
+  if(listen(mSocket, 1) < 0)
+  {
+    perror("listen");
+    exit(1);
+  }
+  
+/////////////////////////////////////////////////////////////////////////////////////////
+
+//Accepting
+
+  int mSocket2;
+  struct sockaddr_in cli; /*used by accept() */
+  int cli_len = sizeof(cli); /*used by accept()*/
+
+  mSocket2 = accept(mSocket, (struct sockaddr*) &cli, (socklen_t*) &cli_len);
+  if(mSocket2 < 0)
+  {
+    perror("accept");
+    exit(1);
+  }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+//Writing
+
+  int nbytes;
+  char buf[]="Hello";
+  if((nbytes = write(mSocket2, buf, sizeof(buf))) < 0)
+  {
+    perror("read"); exit(1);
+  }
+  
+/////////////////////////////////////////////////////////////////////////////////////////
+  
+  close(mSocket);
+  close(mSocket2);
+  return 0;
+}
